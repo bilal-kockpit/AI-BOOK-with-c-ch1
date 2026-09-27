@@ -1,0 +1,18 @@
+{
+    "schema": 1,
+    "type": "completion",
+    "description": "Given a joke, explain why it is funny",
+    "execution_settings": {
+        "default": {
+            "temperature": 0.8,
+            "max_tokens": 4000
+        }
+    },
+    "input_variables": [
+        {
+            "name": "input",
+            "description": "The joke that we want explained",
+            "required": true
+        }
+    ]
+}
