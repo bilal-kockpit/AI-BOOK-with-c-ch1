@@ -1,22 +1,29 @@
 using ConsoleApp1;
 using Microsoft.SemanticKernel;
 
-// Load the settings. You will need to replace the OpenAI API key in settings.json with a Gemini API key.
-// The orgId is not needed for Gemini, but we keep it here so Settings.LoadFromFile doesn't break.
 var (apiKey, orgId) = Settings.LoadFromFile();
 
-// Using Gemini Pro! 
-// Note: gemini-1.5-flash is the fast/free one, and gemini-1.5-pro is the advanced one.
-//Kernel kernel = Kernel.CreateBuilder()
-//                        .AddGoogleAIGeminiChatCompletion("gemini-3.6-flash", apiKey)
-//                        .Build();
-
 Kernel kernel = Kernel.CreateBuilder()
-                        .AddGoogleAIGeminiChatCompletion("gemini-flash-lite-latest", apiKey)
-                        .Build();
+    .AddGoogleAIGeminiChatCompletion("gemini-flash-lite-latest", apiKey)
+    .Build();
 
-string prompt = "Tell me about tej mahal ";
+// 1. Point to the plugins directory
+string pluginsDirectory = Path.Combine(AppContext.BaseDirectory, "Plugins", "prompt_engineering");
 
-var joke = await kernel.InvokePromptAsync(prompt);
+// 2. Load the plugin into the kernel
+var travelPlugin = kernel.CreatePluginFromPromptDirectory(pluginsDirectory);
 
-Console.WriteLine(joke);
+// 3. Set the multiple arguments (fills in {{$city}}, {{$n_days}}, {{$likes}}, {{$dislikes}}, {{$n_attractions}})
+var arguments = new KernelArguments()
+{
+    ["city"] = "Paris",
+    ["n_days"] = "3",
+    ["likes"] = "art, architecture, and French pastries",
+    ["dislikes"] = "crowds and heights",
+    ["n_attractions"] = "3"
+};
+
+// 4. Run the function!
+var result = await kernel.InvokeAsync(travelPlugin["attractions_multiple_variables"], arguments);
+
+Console.WriteLine(result);
